@@ -59,8 +59,19 @@ for(var i = 0; i < 20; i++) {
 }
 //*/
 
+//Для быков и коров генератор 4хзначного числа с неповторяющимися цифрами
+var templ = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+var rndNum = '';
+var rndPos = 0;
 
-
+while(rndNum.length < 4) { 
+	rndPos = Math.floor(Math.random()*(templ.length - 1));
+	console.log(rndPos);
+	rndNum += templ[rndPos];
+	templ[rndPos] = templ[(templ.length-1)];
+	templ.pop();
+}
+console.log(rndNum);
 
 
 
