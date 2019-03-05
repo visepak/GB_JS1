@@ -1,0 +1,254 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Snake</title>
+    <script>
+        var FIELD_SIZE_X = 20;
+        var FIELD_SIZE_Y = 20;
+        var CELL_SIZE = 16;
+        var snakeCoordX;
+        var snakeCoordY;
+        var snake = [];
+        var snakeTimer;
+        var SNAKE_SPEED = 300;
+		var direction = 'top';
+		var FOOD_SPEED = 3000;
+		var score = 0;
+
+
+        
+        function init () {
+            buildGameField();
+            document.getElementById('snake-start').addEventListener('click',handleGameStart);
+            document.getElementById('snake-renew').addEventListener('click',handleGameRefresh);
+
+			window.addEventListener('keydown',handleDirectionChange);
+			document.getElementById('buttonPanel').addEventListener('click',handleDirectChangeButton);
+
+        }
+
+        function handleDirectionChange(event) {
+            switch(event.keyCode) {
+                case 37:
+                  direction = 'left';
+                  break;
+				case 38:
+					direction = 'top';
+                  break;
+				case 39:
+					direction = 'right';
+                  break;
+				case 40:
+					direction = 'bottom';
+                  break;
+            }
+		}
+		
+		function handleDirectChangeButton(event) {
+			switch(event.target.id) {
+                case 'navLeft':
+				  direction = 'left';
+                  break;
+				case 'navTop':
+					direction = 'top';
+                  break;
+				case 'navRight':
+					direction = 'right';
+                  break;
+				case 'navDown':
+					direction = 'bottom';
+				  break;
+			}
+
+		}
+
+        function handleGameStart() {
+            respawn();
+
+			snakeTimer = setInterval(move, SNAKE_SPEED);
+			setTimeout(createFood, FOOD_SPEED);
+        }
+
+		function createFood() {
+			var foodCreated = false;
+			$table = document.getElementById('game-table');
+
+
+			while(!foodCreated) {
+				var foodX = Math.floor(Math.random() * FIELD_SIZE_X);
+				var foodY = Math.floor(Math.random() * FIELD_SIZE_Y);
+
+				var foodUnit = $table.children[foodX].children[foodY];
+
+				if(!foodUnit.classList.contains('snake-unit')) {
+					foodCreated = true;
+					foodUnit.classList.add('food-unit');
+				}
+			}
+		}
+
+        function move() {
+          $table = document.getElementById('game-table');
+          switch(direction) {
+              case 'top':
+                snakeCoordX--;
+                break;                    
+              case 'bottom':
+                snakeCoordX++;
+                break;
+              case 'left':
+                snakeCoordY--;
+                break;
+              case 'right':
+                snakeCoordY++;
+                break;
+            }
+
+            if(
+                snakeCoordX >= 0 && snakeCoordX < FIELD_SIZE_X &&
+                snakeCoordY >= 0 && snakeCoordY < FIELD_SIZE_Y
+            ) {
+                newUnit = $table.children[snakeCoordX].children[snakeCoordY];
+            }
+
+            if(newUnit && !isSnakeUnit(newUnit)) {
+                newUnit.classList.add('snake-unit');
+                snake.push(newUnit);
+                if(!isFoodUnit(newUnit)) {
+					var oldUnit = snake.shift();
+                	oldUnit.classList.remove('snake-unit');
+				} else {
+					//выйгрышная ветка
+					createFood();
+				}
+            } else {
+				gameOver();
+			}
+		}
+
+		function gameOver() {
+			clearInterval(snakeTimer);
+			alert('Game over');
+		}
+		
+		function isFoodUnit(unit) {
+			if(unit.classList.contains('food-unit')) {
+				score++;
+				unit.classList.remove('food-unit');
+				return true;
+			} else {
+				return false;
+			}
+		}
+
+		function isSnakeUnit(unit) {
+			return snake.includes(unit);
+		}
+
+        function handleGameRefresh() {
+            
+        }
+
+        function respawn() {
+            snakeCoordX = Math.floor(FIELD_SIZE_X / 2);
+            snakeCoordY = Math.floor(FIELD_SIZE_Y / 2);
+            var $table = document.getElementById('game-table');
+            var $snakeHead = $table.children[snakeCoordX].children[snakeCoordY];
+            var $snakeTail = $table.children[--snakeCoordX].children[snakeCoordY];
+
+            $snakeHead.classList.add('snake-unit');
+            $snakeTail.classList.add('snake-unit');
+
+            snake.push($snakeHead);
+            snake.push($snakeTail);
+
+        }
+
+        function buildGameField() {
+            var $table = document.createElement('table');
+            $table.classList.add('game-table');
+            $table.id = 'game-table';
+
+            var $field = document.getElementById('snake-field');
+            $field.style.width = FIELD_SIZE_X * CELL_SIZE + 'px';
+            
+            for(var i = 0; i < FIELD_SIZE_X; i++) {
+                var $row = document.createElement('tr');
+
+                for(var j = 0; j < FIELD_SIZE_Y; j++) {
+                    var $cell = document.createElement('td');
+                    $cell.classList.add('game-table-cell');
+                    $cell.style.width = CELL_SIZE + 'px';
+                    $cell.style.height = CELL_SIZE + 'px';
+
+                    $row.appendChild($cell);
+                }
+
+                $table.appendChild($row);
+            }
+
+            $field.appendChild($table);
+        }
+
+        window.addEventListener('load', init);
+    </script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+        .snake-field {
+            background-color: black;
+            border: 1px solid limegreen;
+        }
+        
+        .action-button {
+            width: 100px;
+            padding: 15px;
+            color: white;
+            background-color: crimson;
+            float: left;
+            margin-right: 20px;
+            text-align: center;
+		}
+		
+		.navButton {
+			width: 20px;
+			padding: 10px;
+            color: white;
+            background-color: rgb(42, 80, 59);
+            float: left;
+            margin-right: 20px;
+            text-align: center;
+		}
+        .game-table {
+            border-collapse: collapse;
+        }
+
+        .game-table-cell {
+            border: 1px dotted limegreen;
+        }
+
+        .snake-unit {
+            background-color: firebrick;
+		}
+		.food-unit {
+			background-color: chartreuse;
+		}
+    </style>
+</head>
+<body>
+    <div class="snake-field" id='snake-field'></div>
+    <button class="action-button" id='snake-start'>START</button>
+	<button class="action-button"id='snake-renew'>NEW</button><br>
+	<div id='buttonPanel'>
+			<button class="navButton" id='navTop'>U</button>
+			<button class="navButton" id='navLeft'>L</button>
+			<button class="navButton" id='navDown'>D</button>
+			<button class="navButton" id='navRight'>R</button>
+	</div>
+</body>
+</html>

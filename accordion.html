@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+  <head>
+   <title>Accordion</title>
+   <meta charset="utf-8">
+   <style>
+     .content {
+       display: none;
+     }
+     .active {
+       display: block;
+     }
+   </style>
+  </head>
+  <body>
+    <div id='accordion'>
+      <h2><a class='tab' href="#content1">TAB1</a></h2>
+      <div class='content active' id='content1'>content</div>
+      <h2><a class='tab' href="#content2">TAB2</a></h2>
+      <div class='content' id='content2'>content</div>
+      <h2><a class='tab' href="#content3">TAB3</a></h2>
+      <div class='content' id='content3'>content</div>
+    </div>
+    <script>
+      var $accordion = document.getElementById('accordion');
+
+      function handleAccChange(event){
+        if ( event.target.tagName === 'A') {
+          var $contents = document.querySelectorAll('.active');
+          
+          for( var i = 0; i < $contents.length; i++) {
+          $contents[i].classList.remove('active'); 
+          } 
+          var $content = document.querySelector(event.target.getAttribute('href'));
+          $content.classList.add('active'); 
+           
+        }
+
+        event.preventDefault();  
+                
+      }
+
+      $accordion.addEventListener('click', handleAccChange);
+    </script>
+  </body>
+</html>
